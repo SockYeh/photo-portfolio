@@ -91,6 +91,26 @@ main {
   color: var(--fg-dim);
 }
 
+.about-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 18px;
+  margin-top: 14px;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.about-links a {
+  color: var(--fg-dim);
+  transition: color 0.2s ease;
+}
+
+.about-links a:hover {
+  color: var(--fg);
+}
+
 /* ---------- Grid (VSCO-style masonry, true aspect ratios) ---------- */
 
 .grid {
