@@ -39,7 +39,7 @@ a {
   align-items: baseline;
   justify-content: space-between;
   gap: 12px;
-  padding: 18px 20px;
+  padding: 18px 0;
   font-size: 12px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -54,26 +54,56 @@ a {
   color: var(--fg-dim);
 }
 
-main {
-  padding: 0 var(--gap) var(--gap);
+.shell {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 0 20px;
 }
 
-/* ---------- Grid (VSCO-style uniform squares) ---------- */
+main {
+  padding-bottom: var(--gap);
+}
+
+/* ---------- About / preface ---------- */
+
+.about {
+  max-width: 640px;
+  padding: 28px 0 12px;
+}
+
+.about-name {
+  margin: 0 0 8px;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.about-text {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.75;
+  color: var(--fg-dim);
+}
+
+/* ---------- Grid (VSCO-style masonry, true aspect ratios) ---------- */
 
 .grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
-  gap: var(--gap);
+  columns: 3;
+  column-gap: var(--gap);
   margin: 0;
   padding: 0;
   list-style: none;
+}
+
+.grid li {
+  margin-bottom: var(--gap);
+  break-inside: avoid;
 }
 
 .tile {
   position: relative;
   display: block;
   width: 100%;
-  aspect-ratio: 1 / 1;
   padding: 0;
   border: 0;
   background: var(--bg-elevated);
@@ -85,8 +115,7 @@ main {
 .tile img {
   display: block;
   width: 100%;
-  height: 100%;
-  object-fit: cover;
+  height: auto;
   transition: transform 0.35s ease;
 }
 
@@ -268,17 +297,17 @@ main {
 
 /* ---------- Responsive ---------- */
 
-@media (max-width: 900px) {
+@media (max-width: 1000px) {
+  .grid {
+    columns: 2;
+  }
+
   .lightbox {
     padding: 52px 60px 44px;
   }
 }
 
 @media (max-width: 600px) {
-  .grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
   .lightbox {
     padding: 52px 12px 44px;
   }
