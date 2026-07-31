@@ -64,24 +64,39 @@ main {
   padding-bottom: var(--gap);
 }
 
-/* ---------- About / preface ---------- */
+/* ---------- About / preface (VSCO-style profile header) ---------- */
 
 .about {
-  max-width: 640px;
-  padding: 28px 0 12px;
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  padding: 36px 0 30px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 28px;
+}
+
+.about-avatar img {
+  display: block;
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--bg-elevated);
 }
 
 .about-name {
-  margin: 0 0 8px;
-  font-size: 22px;
+  margin: 0 0 6px;
+  font-size: 20px;
   font-weight: 700;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 .about-text {
   margin: 0;
+  max-width: 56ch;
   font-size: 14px;
-  line-height: 1.75;
+  line-height: 1.7;
   color: var(--fg-dim);
 }
 
@@ -92,11 +107,24 @@ main {
   column-gap: var(--gap);
   margin: 0;
   padding: 0;
-  list-style: none;
 }
 
-.grid li {
-  margin-bottom: var(--gap);
+.grid.masonry {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--gap);
+  columns: auto;
+}
+
+.grid .mcol {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0;
+  min-width: 0;
+  gap: var(--gap);
+}
+
+.tile-wrap {
   break-inside: avoid;
 }
 
@@ -308,6 +336,21 @@ main {
 }
 
 @media (max-width: 600px) {
+  .about {
+    gap: 14px;
+    padding: 24px 0 20px;
+    margin-bottom: 20px;
+  }
+
+  .about-avatar img {
+    width: 64px;
+    height: 64px;
+  }
+
+  .about-name {
+    font-size: 17px;
+  }
+
   .lightbox {
     padding: 52px 12px 44px;
   }

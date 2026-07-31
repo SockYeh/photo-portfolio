@@ -1,6 +1,11 @@
 {
   "user": "sockyeh",
-  "syncedAt": "2026-07-31T15:39:14.817Z",
+  "profile": {
+    "name": "sockyeh",
+    "image": "https://i.vsco.co/69fdc849b32634b648470f60?c=1&d=1&w=600",
+    "description": ""
+  },
+  "syncedAt": "2026-07-31T15:47:22.796Z",
   "total": 112,
   "photos": [
     {

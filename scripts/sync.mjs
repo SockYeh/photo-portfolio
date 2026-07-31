@@ -153,6 +153,9 @@ function siteInfo(state) {
     tkn: state.users?.currentUser?.tkn,
     siteId: String(site.id),
     username: site.username || USER,
+    name: site.name || site.username || USER,
+    profileImage: site.profileImage || "",
+    description: site.description || "",
   };
 }
 
@@ -251,7 +254,7 @@ function normalize(media) {
 
 async function main() {
   const state = await getPreloadState();
-  const { tkn, siteId, username } = siteInfo(state);
+  const { tkn, siteId, username, name, profileImage, description } = siteInfo(state);
 
   log(`user    : @${username}`);
   log(`site_id : ${siteId}`);
@@ -280,6 +283,11 @@ async function main() {
 
   const payload = {
     user: username,
+    profile: {
+      name,
+      image: profileImage.replace(/w=\d+/, "w=600"),
+      description,
+    },
     syncedAt: new Date().toISOString(),
     total: photos.length,
     photos,

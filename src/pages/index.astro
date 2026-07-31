@@ -4,10 +4,13 @@ import rawData from "../data/photos.json";
 import type { Photo, PhotosData } from "../lib/types";
 
 const data = rawData as PhotosData;
+const { user, profile } = data;
 const photos: Photo[] = data.photos;
 const count = photos.length;
 
-const about = `I'm Sahran (SockYeh), a hobbyist photographer who shots on his phone.`;
+const about = `Hi, I'm sockyeh. I take photos — streets, portraits, light, and everyday moments. This page is a little archive of what I've been shooting.`;
+const bio = (about.trim() || profile?.description || "").trim();
+const displayName = (profile?.name || user || "SockYeh").toUpperCase();
 ---
 
 <Base title="SockYeh's Gallery" description="Photography by sockyeh">
@@ -18,25 +21,39 @@ const about = `I'm Sahran (SockYeh), a hobbyist photographer who shots on his ph
     </header>
 
     <section class="about">
-      <h1 class="about-name">SOCKYEH</h1>
-      <p class="about-text">{about}</p>
+      <div class="about-avatar">
+        {profile?.image && (
+          <img
+            src={profile.image}
+            alt={profile.name || displayName}
+            width={96}
+            height={96}
+            loading="eager"
+            decoding="async"
+          />
+        )}
+      </div>
+      <div class="about-info">
+        <h1 class="about-name">{displayName}</h1>
+        {bio && <p class="about-text">{bio}</p>}
+      </div>
     </section>
 
     <main>
       {
         count > 0 ? (
-          <ul class="grid" id="grid">
+          <div class="grid" id="grid">
             {photos.map((p, i) => (
-              <li>
+              <div class="tile-wrap">
                 <button
                   type="button"
                   class="tile"
                   data-idx={i}
                   aria-label={p.caption ? `Open photo: ${p.caption}` : `Open photo ${i + 1}`}
                 >
-                <img
-                  src={p.full}
-                  alt={p.caption || `Photo ${i + 1}`}
+                  <img
+                    src={p.full}
+                    alt={p.caption || `Photo ${i + 1}`}
                     width={p.width || undefined}
                     height={p.height || undefined}
                     loading="lazy"
@@ -48,9 +65,9 @@ const about = `I'm Sahran (SockYeh), a hobbyist photographer who shots on his ph
                     )
                   }
                 </button>
-              </li>
+              </div>
             ))}
-          </ul>
+          </div>
         ) : (
           <p class="empty">
             No photos yet — run <code>npm run sync</code> then rebuild.
@@ -96,6 +113,47 @@ const about = `I'm Sahran (SockYeh), a hobbyist photographer who shots on his ph
 
     const dataEl = document.getElementById("photos-data") as HTMLScriptElement;
     const photos: Photo[] = JSON.parse(dataEl.textContent || "[]");
+
+    const grid = document.getElementById("grid") as HTMLDivElement;
+    const tileWraps = Array.from(grid.children) as HTMLElement[];
+
+    function layoutMasonry() {
+      const cols = window.innerWidth < 1000 ? 2 : 3;
+      let columns = Array.from(grid.children).filter((el) =>
+        (el as HTMLElement).classList.contains("mcol"),
+      ) as HTMLElement[];
+      if (columns.length !== cols) {
+        grid.classList.add("masonry");
+        grid.innerHTML = "";
+        columns = Array.from({ length: cols }, () => {
+          const col = document.createElement("div");
+          col.className = "mcol";
+          grid.appendChild(col);
+          return col;
+        });
+      } else {
+        columns.forEach((col) => (col.innerHTML = ""));
+      }
+
+      const heights = new Array(cols).fill(0);
+      tileWraps.forEach((wrap, i) => {
+        const p = photos[i];
+        const ratio = p?.width && p?.height ? p.height / p.width : 1;
+        let min = 0;
+        for (let c = 1; c < cols; c++) {
+          if (heights[c] < heights[min]) min = c;
+        }
+        heights[min] += ratio;
+        columns[min].appendChild(wrap);
+      });
+    }
+
+    layoutMasonry();
+    let resizeRaf = 0;
+    window.addEventListener("resize", () => {
+      cancelAnimationFrame(resizeRaf);
+      resizeRaf = requestAnimationFrame(layoutMasonry);
+    });
 
     const lightbox = document.getElementById("lightbox") as HTMLDivElement;
     const img = document.getElementById("lb-img") as HTMLImageElement;

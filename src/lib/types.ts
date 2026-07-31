@@ -10,8 +10,15 @@ export interface Photo {
   tags?: string[];
 }
 
+export interface Profile {
+  name: string;
+  image: string;
+  description: string;
+}
+
 export interface PhotosData {
   user: string;
+  profile?: Profile;
   syncedAt: string;
   total: number;
   photos: Photo[];
