@@ -27,7 +27,7 @@ const count = photos.length;
                 aria-label={p.caption ? `Open photo: ${p.caption}` : `Open photo ${i + 1}`}
               >
                 <img
-                  src={p.thumb}
+                  src={p.local}
                   alt={p.caption || `Photo ${i + 1}`}
                   width={p.width || undefined}
                   height={p.height || undefined}
@@ -76,6 +76,7 @@ const count = photos.length;
     interface Photo {
       id: string;
       full: string;
+      local: string;
       thumb: string;
       width?: number;
       height?: number;
@@ -119,15 +120,15 @@ const count = photos.length;
       if (p.video) {
         img.hidden = true;
         video.hidden = false;
-        if (video.src !== p.full) {
-          video.src = p.full;
+        if (video.src !== p.local) {
+          video.src = p.local;
           video.play().catch(() => {});
         }
       } else {
         video.pause();
         video.hidden = true;
         img.hidden = false;
-        if (img.src !== p.full) img.src = p.full;
+        if (img.src !== p.local) img.src = p.local;
       }
 
       prevBtn.disabled = idx === 0;
