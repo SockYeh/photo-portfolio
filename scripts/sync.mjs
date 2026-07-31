@@ -214,19 +214,6 @@ function resolveFull(responsive) {
   return `https://${responsive}`;
 }
 
-/**
- * Local proxy path served by the Cloudflare Worker (gallery.sockyeh.dev/img/*).
- * The Worker rewrites this back to https://img.vsco.co/<path> and caches it, so
- * visitors never hit VSCO's CDN directly.
- */
-function proxyPath(full) {
-  try {
-    return `/img${new URL(full).pathname}`;
-  } catch {
-    return full;
-  }
-}
-
 function normalize(media) {
   if (!media) return null;
 
@@ -250,7 +237,6 @@ function normalize(media) {
   return {
     id: String(media._id || media.id || full),
     full,
-    local: proxyPath(full),
     thumb: full,
     width: media.width || 0,
     height: media.height || 0,

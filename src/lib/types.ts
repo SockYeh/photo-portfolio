@@ -1,7 +1,6 @@
 export interface Photo {
   id: string;
   full: string;
-  local: string;
   thumb: string;
   width?: number;
   height?: number;

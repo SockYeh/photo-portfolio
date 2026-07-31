@@ -34,9 +34,9 @@ const about = `Hi, I'm sockyeh. I take photos — streets, portraits, light, and
                   data-idx={i}
                   aria-label={p.caption ? `Open photo: ${p.caption}` : `Open photo ${i + 1}`}
                 >
-                  <img
-                    src={p.local}
-                    alt={p.caption || `Photo ${i + 1}`}
+                <img
+                  src={p.full}
+                  alt={p.caption || `Photo ${i + 1}`}
                     width={p.width || undefined}
                     height={p.height || undefined}
                     loading="lazy"
@@ -85,7 +85,6 @@ const about = `Hi, I'm sockyeh. I take photos — streets, portraits, light, and
     interface Photo {
       id: string;
       full: string;
-      local: string;
       thumb: string;
       width?: number;
       height?: number;
@@ -129,15 +128,15 @@ const about = `Hi, I'm sockyeh. I take photos — streets, portraits, light, and
       if (p.video) {
         img.hidden = true;
         video.hidden = false;
-        if (video.src !== p.local) {
-          video.src = p.local;
+        if (video.src !== p.full) {
+          video.src = p.full;
           video.play().catch(() => {});
         }
       } else {
         video.pause();
         video.hidden = true;
         img.hidden = false;
-        if (img.src !== p.local) img.src = p.local;
+        if (img.src !== p.full) img.src = p.full;
       }
 
       prevBtn.disabled = idx === 0;
