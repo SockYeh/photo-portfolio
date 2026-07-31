@@ -5,9 +5,20 @@
     "image": "https://i.vsco.co/69fdc849b32634b648470f60?c=1&d=1&w=600",
     "description": ""
   },
-  "syncedAt": "2026-07-31T15:47:22.796Z",
-  "total": 112,
+  "syncedAt": "2026-07-31T16:05:03.848Z",
+  "total": 113,
   "photos": [
+    {
+      "id": "6a6cc60a7fd5cedf1b788400",
+      "full": "https://image-aws-us-west-2.vsco.co/33ad5a/332621072/6a6cc60a7fd5cedf1b788400/82943333-a528-41c8-8017-58f786a136947974358805558254439.jpg",
+      "thumb": "https://image-aws-us-west-2.vsco.co/33ad5a/332621072/6a6cc60a7fd5cedf1b788400/82943333-a528-41c8-8017-58f786a136947974358805558254439.jpg",
+      "width": 1542,
+      "height": 2048,
+      "caption": "",
+      "date": 1785513484791,
+      "video": false,
+      "tags": []
+    },
     {
       "id": "6a6a3e532503d868dfb07acc",
       "full": "https://image-aws-us-west-2.vsco.co/33ad5a/332621072/6a6a3e532503d868dfb07acc/a4437afc-7523-4c9c-a3bc-ee62836f38235711874820312253783.jpg",
