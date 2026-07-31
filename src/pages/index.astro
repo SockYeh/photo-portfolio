@@ -15,11 +15,6 @@ const displayName = (profile?.name || user || "SockYeh").toUpperCase();
 
 <Base title="SockYeh's Gallery" description="Photography by SockYeh">
   <div class="shell">
-    <header class="site-header">
-      <span class="logo">SOCKYEH</span>
-      <span class="meta">photo gallery · {count}</span>
-    </header>
-
     <section class="about">
       <div class="about-avatar">
         {profile?.image && (
@@ -33,10 +28,9 @@ const displayName = (profile?.name || user || "SockYeh").toUpperCase();
           />
         )}
       </div>
-      <div class="about-info">
-        <h1 class="about-name">{displayName}</h1>
-        {bio && <p class="about-text">{bio}</p>}
-      </div>
+      <h1 class="about-name">{displayName}</h1>
+      <p class="about-meta">photo gallery · {count}</p>
+      {bio && <p class="about-text">{bio}</p>}
     </section>
 
     <main>

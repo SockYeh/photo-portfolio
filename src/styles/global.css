@@ -34,26 +34,7 @@ a {
   text-decoration: none;
 }
 
-.site-header {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 5px;
-  padding: 26px 0 10px;
-  font-size: 12px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-}
-
-.site-header .logo {
-  font-weight: 700;
-  color: #fff;
-  letter-spacing: 0.3em;
-}
-
-.site-header .meta {
-  color: var(--fg-dim);
-}
+/* ---------- About / profile header ---------- */
 
 .shell {
   max-width: 1240px;
@@ -65,15 +46,13 @@ main {
   padding-bottom: var(--gap);
 }
 
-/* ---------- About / preface (VSCO-style profile header) ---------- */
-
 .about {
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 12px;
-  padding: 32px 0 30px;
+  gap: 10px;
+  padding: 40px 0 30px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   margin-bottom: 28px;
 }
@@ -85,18 +64,27 @@ main {
   border-radius: 50%;
   object-fit: cover;
   background: var(--bg-elevated);
+  margin-bottom: 6px;
 }
 
 .about-name {
   margin: 0;
   font-size: 20px;
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.3em;
   text-transform: uppercase;
 }
 
+.about-meta {
+  margin: 0;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--fg-dim);
+}
+
 .about-text {
-  margin: 0 auto;
+  margin: 6px auto 0;
   max-width: 52ch;
   font-size: 14px;
   line-height: 1.7;
@@ -341,7 +329,7 @@ main {
 
 @media (max-width: 600px) {
   .about {
-    gap: 14px;
+    gap: 10px;
     padding: 24px 0 20px;
     margin-bottom: 20px;
   }
