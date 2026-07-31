@@ -8,7 +8,7 @@ const { user, profile } = data;
 const photos: Photo[] = data.photos;
 const count = photos.length;
 
-const about = `I'm Sahran (SockYeh), a hobbyist photographer who shots on his phone.`;
+const about = `I'm Sahran (SockYeh), a hobbyist photographer who shoots on his phone.`;
 const bio = (about.trim() || profile?.description || "").trim();
 const displayName = (profile?.name || user || "SockYeh").toUpperCase();
 ---
