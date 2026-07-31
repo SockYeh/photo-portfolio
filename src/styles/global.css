@@ -1,9 +1,11 @@
 :root {
-  --bg: #191919;
-  --bg-elevated: #232323;
-  --fg: #f2f2f2;
-  --fg-dim: rgba(255, 255, 255, 0.45);
-  --overlay: rgba(10, 10, 10, 0.96);
+  --bg: #1e1e2e;
+  --bg-elevated: #313244;
+  --fg: #cdd6f4;
+  --fg-dim: #a6adc8;
+  --accent: #89b4fa;
+  --border: #313244;
+  --overlay: rgba(30, 30, 46, 0.96);
   --gap: 6px;
 }
 
@@ -53,7 +55,7 @@ main {
   text-align: center;
   gap: 10px;
   padding: 40px 0 30px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid var(--border);
   margin-bottom: 28px;
 }
 
@@ -261,9 +263,9 @@ main {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  background: rgba(255, 255, 255, 0.08);
-  color: #fff;
+  border: 1px solid rgba(205, 214, 244, 0.18);
+  background: rgba(205, 214, 244, 0.08);
+  color: var(--fg);
   font-size: 20px;
   line-height: 1;
   cursor: pointer;
@@ -272,7 +274,7 @@ main {
 }
 
 .lb-btn:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.18);
+  background: rgba(205, 214, 244, 0.18);
 }
 
 .lb-btn:disabled {
@@ -312,7 +314,7 @@ main {
 }
 
 .site-footer a:hover {
-  color: var(--fg);
+  color: var(--accent);
 }
 
 /* ---------- Responsive ---------- */
