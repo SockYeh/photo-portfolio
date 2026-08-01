@@ -95,6 +95,36 @@ const displayName = (profile?.name || user || "SockYeh").toUpperCase();
     <button type="button" class="lb-btn lb-next" id="lb-next" aria-label="Next photo">›</button>
   </div>
 
+  <button class="arttech-toggle" id="arttech-toggle" type="button" aria-label="Open portfolio">
+    <span class="arttech-toggle-track">
+      <svg class="arttech-icon" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+        <circle cx="12" cy="13" r="4" />
+      </svg>
+      <span class="arttech-knob"></span>
+      <svg class="arttech-icon" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M4 17l6-6-6-6" />
+        <path d="M12 19h8" />
+      </svg>
+    </span>
+  </button>
+
+  <div class="boot-overlay" id="boot-overlay" aria-hidden="true">
+    <pre class="boot-tux" aria-hidden="true">    .--.
+   |o_o |
+   |:_/ |
+  //   \ \
+ (|     | )
+/'\_   _/`\
+\___)=(___/</pre>
+    <p class="boot-title">Linux sockyeh 6.9.3-gallery x86_64</p>
+    <div class="boot-logs" id="boot-logs"></div>
+    <div class="boot-bar" aria-hidden="true">
+      <div class="boot-bar-fill" id="boot-bar-fill"></div>
+    </div>
+  </div>
+  <div class="boot-flash" id="boot-flash" aria-hidden="true"></div>
+
   <script type="application/json" is:inline id="photos-data" set:html={JSON.stringify(photos).replace(/</g, "\\u003c")} />
 
   <script>
@@ -235,6 +265,101 @@ const displayName = (profile?.name || user || "SockYeh").toUpperCase();
       if (e.key === "Escape") closeLightbox();
       else if (e.key === "ArrowLeft" && idx > 0) openAt(idx - 1);
       else if (e.key === "ArrowRight" && idx < photos.length - 1) openAt(idx + 1);
+    });
+  </script>
+
+  <script>
+    const PORTFOLIO_URL = "https://sockyeh.dev";
+    const TYPE_MS = 2;
+    const LINE_GAP_MS = 35;
+    const BOOT_MS = 850;
+
+    const toggleBtn = document.getElementById("arttech-toggle") as HTMLButtonElement;
+    const overlay = document.getElementById("boot-overlay") as HTMLDivElement;
+    const logsEl = document.getElementById("boot-logs") as HTMLDivElement;
+    const barFill = document.getElementById("boot-bar-fill") as HTMLDivElement;
+    const flashEl = document.getElementById("boot-flash") as HTMLDivElement;
+
+    interface BootLine {
+      prefix: string;
+      text: string;
+      cls: string;
+    }
+
+    const LINES: BootLine[] = [
+      { prefix: "[    0.000000] ", text: "Linux version 6.9.3-arch1-1-sockyeh (gcc 14.1.1)", cls: "kern" },
+      { prefix: "[    0.012345] ", text: "Memory: 16384M available", cls: "kern" },
+      { prefix: "[  OK  ] ", text: "Started SockYeh Gallery Daemon.", cls: "ok" },
+      { prefix: "[  OK  ] ", text: "Reached target Camera Stack.", cls: "ok" },
+      { prefix: "[  OK  ] ", text: "Mounting /mnt/portfolio...", cls: "ok" },
+      { prefix: "[  OK  ] ", text: "Mounted /mnt/portfolio.", cls: "ok" },
+      { prefix: "[  OK  ] ", text: "Starting SockYeh Portfolio...", cls: "ok" },
+      { prefix: "[    0.847129] ", text: "Booting into portfolio at sockyeh.dev", cls: "kern" },
+    ];
+
+    function typeLine(line: BootLine): Promise<void> {
+      return new Promise((resolve) => {
+        const el = document.createElement("div");
+        el.className = "boot-line";
+
+        const prefix = document.createElement("span");
+        prefix.className = line.cls === "ok" ? "boot-ok" : "boot-kern";
+        prefix.textContent = line.prefix;
+
+        const text = document.createElement("span");
+        el.append(prefix, text);
+
+        const cursor = document.createElement("span");
+        cursor.className = "boot-cursor";
+        el.appendChild(cursor);
+
+        logsEl.appendChild(el);
+        logsEl.scrollTop = logsEl.scrollHeight;
+
+        let i = 0;
+        const timer = setInterval(() => {
+          text.textContent = line.text.slice(0, ++i);
+          logsEl.scrollTop = logsEl.scrollHeight;
+          if (i >= line.text.length) {
+            clearInterval(timer);
+            cursor.remove();
+            resolve();
+          }
+        }, TYPE_MS);
+      });
+    }
+
+    async function runBoot() {
+      overlay.classList.add("show");
+
+      if (matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        barFill.style.width = "100%";
+        await new Promise((r) => setTimeout(r, 250));
+        window.location.href = PORTFOLIO_URL;
+        return;
+      }
+
+      const start = performance.now();
+      requestAnimationFrame(function fill(now) {
+        const t = Math.min(1, (now - start) / BOOT_MS);
+        barFill.style.width = `${(t * 100).toFixed(1)}%`;
+        if (t < 1) requestAnimationFrame(fill);
+      });
+
+      for (const line of LINES) {
+        await typeLine(line);
+        await new Promise((r) => setTimeout(r, LINE_GAP_MS));
+      }
+      barFill.style.width = "100%";
+      flashEl.classList.add("go");
+      await new Promise((r) => setTimeout(r, 120));
+      window.location.href = PORTFOLIO_URL;
+    }
+
+    toggleBtn.addEventListener("click", () => {
+      if (toggleBtn.classList.contains("switching")) return;
+      toggleBtn.classList.add("switching");
+      setTimeout(runBoot, 100);
     });
   </script>
 </Base>
