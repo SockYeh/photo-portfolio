@@ -123,7 +123,6 @@ const displayName = (profile?.name || user || "SockYeh").toUpperCase();
       <div class="boot-bar-fill" id="boot-bar-fill"></div>
     </div>
   </div>
-  <div class="boot-flash" id="boot-flash" aria-hidden="true"></div>
 
   <script type="application/json" is:inline id="photos-data" set:html={JSON.stringify(photos).replace(/</g, "\\u003c")} />
 
@@ -278,7 +277,6 @@ const displayName = (profile?.name || user || "SockYeh").toUpperCase();
     const overlay = document.getElementById("boot-overlay") as HTMLDivElement;
     const logsEl = document.getElementById("boot-logs") as HTMLDivElement;
     const barFill = document.getElementById("boot-bar-fill") as HTMLDivElement;
-    const flashEl = document.getElementById("boot-flash") as HTMLDivElement;
 
     interface BootLine {
       prefix: string;
@@ -351,8 +349,7 @@ const displayName = (profile?.name || user || "SockYeh").toUpperCase();
         await new Promise((r) => setTimeout(r, LINE_GAP_MS));
       }
       barFill.style.width = "100%";
-      flashEl.classList.add("go");
-      await new Promise((r) => setTimeout(r, 120));
+      await new Promise((r) => setTimeout(r, 150));
       window.location.href = PORTFOLIO_URL;
     }
 
@@ -362,11 +359,9 @@ const displayName = (profile?.name || user || "SockYeh").toUpperCase();
       setTimeout(runBoot, 100);
     });
 
-    window.addEventListener("pageshow", (e) => {
-      if (!e.persisted) return;
+    window.addEventListener("pageshow", () => {
       toggleBtn.classList.remove("switching");
       overlay.classList.remove("show");
-      flashEl.classList.remove("go");
       barFill.style.width = "0";
       logsEl.innerHTML = "";
     });
