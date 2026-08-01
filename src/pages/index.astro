@@ -361,5 +361,14 @@ const displayName = (profile?.name || user || "SockYeh").toUpperCase();
       toggleBtn.classList.add("switching");
       setTimeout(runBoot, 100);
     });
+
+    window.addEventListener("pageshow", (e) => {
+      if (!e.persisted) return;
+      toggleBtn.classList.remove("switching");
+      overlay.classList.remove("show");
+      flashEl.classList.remove("go");
+      barFill.style.width = "0";
+      logsEl.innerHTML = "";
+    });
   </script>
 </Base>
