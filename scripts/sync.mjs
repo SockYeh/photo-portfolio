@@ -10,9 +10,10 @@
  *      with `Authorization: Bearer <tkn>` plus the web client headers.
  *   3. Normalize every photo and write src/data/photos.json.
  *
- * Why curl.exe: VSCO is behind Cloudflare, which blocks Node's built-in fetch by
- * TLS fingerprint even from residential IPs (HTTP 403). Windows' built-in curl.exe
- * (Schannel) passes. If curl.exe is unavailable, install one or set CURL_BIN.
+ * Why curl: VSCO is behind Cloudflare, which blocks Node's built-in fetch by TLS
+ * fingerprint even from residential IPs (HTTP 403). The system curl (curl.exe on
+ * Windows, curl on Ubuntu/Linux) passes. If curl is unavailable, install it or
+ * set CURL_BIN.
  *
  * Usage:
  *   npm run sync              # fetch everything and write src/data/photos.json
@@ -29,7 +30,7 @@ const probeOnly = process.argv.includes("--probe");
 const USER = (process.env.VSCO_USER || "sockyeh").toLowerCase();
 const ROOT = "https://vsco.co";
 const OUT_URL = new URL("../src/data/photos.json", import.meta.url);
-const CURL = process.env.CURL_BIN || "curl.exe";
+const CURL = process.env.CURL_BIN || (process.platform === "win32" ? "curl.exe" : "curl");
 
 const LIMIT = "14";
 const MAX_PAGES = 100;
@@ -52,7 +53,7 @@ function log(...args) {
 }
 
 /**
- * HTTP GET via curl.exe. Returns { code, body } where `code` is the HTTP status
+ * HTTP GET via curl. Returns { code, body } where `code` is the HTTP status
  * and `body` is the raw response text (empty on hard failures).
  */
 async function curl(url, { accept, headers = {} } = {}) {
@@ -88,7 +89,8 @@ async function curl(url, { accept, headers = {} } = {}) {
   } catch (e) {
     if (e.code === "ENOENT") {
       throw new Error(
-        `${CURL} not found. This script needs Windows' built-in curl.exe. ` +
+        `${CURL} not found. This script needs the system curl binary ` +
+          `(curl.exe on Windows, curl on Ubuntu/Linux). ` +
           `If you don't have it, install curl and set CURL_BIN to its path.`,
       );
     }
@@ -115,7 +117,7 @@ async function getPreloadState() {
     if (code === 403) {
       throw new Error(
         `GET ${url} -> HTTP 403. Cloudflare blocked this request. ` +
-          `Try again (VSCO may be throttling), or check that curl.exe isn't being ` +
+          `Try again (VSCO may be throttling), or check that curl isn't being ` +
           `intercepted by a proxy/VPN.`,
       );
     }
