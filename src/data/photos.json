@@ -5,9 +5,31 @@
     "image": "https://i.vsco.co/69fdc849b32634b648470f60?c=1&d=1&w=600",
     "description": ""
   },
-  "syncedAt": "2026-08-04T15:29:49.413Z",
-  "total": 119,
+  "syncedAt": "2026-08-08T16:34:43.129Z",
+  "total": 121,
   "photos": [
+    {
+      "id": "6a775a75dd87a12521b3a5eb",
+      "full": "https://image-aws-us-west-2.vsco.co/33ad5a/332621072/6a775a75dd87a12521b3a5eb/d5429844-4242-4b64-9ab5-f3fcbb6a16106783808678788804437.jpg",
+      "thumb": "https://image-aws-us-west-2.vsco.co/33ad5a/332621072/6a775a75dd87a12521b3a5eb/d5429844-4242-4b64-9ab5-f3fcbb6a16106783808678788804437.jpg",
+      "width": 2048,
+      "height": 1526,
+      "caption": "",
+      "date": 1786206860237,
+      "video": false,
+      "tags": []
+    },
+    {
+      "id": "6a775323aae758e22f6e92af",
+      "full": "https://image-aws-us-west-2.vsco.co/33ad5a/332621072/6a775323aae758e22f6e92af/6fdcf89e-b615-48d8-a333-5cba98aea8f35420365355351824050.jpg",
+      "thumb": "https://image-aws-us-west-2.vsco.co/33ad5a/332621072/6a775323aae758e22f6e92af/6fdcf89e-b615-48d8-a333-5cba98aea8f35420365355351824050.jpg",
+      "width": 1542,
+      "height": 2048,
+      "caption": "",
+      "date": 1786204980502,
+      "video": false,
+      "tags": []
+    },
     {
       "id": "6a71e0d5a141bd61b21de350",
       "full": "https://image-aws-us-west-2.vsco.co/33ad5a/332621072/6a71e0d5a141bd61b21de350/612678ff-77a0-4ace-9b7f-bc247d15a3ba1135291088583476966.jpg",
