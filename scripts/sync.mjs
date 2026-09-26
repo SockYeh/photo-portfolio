@@ -10,10 +10,12 @@
  *      with `Authorization: Bearer <tkn>` plus the web client headers.
  *   3. Normalize every photo and write src/data/photos.json.
  *
- * Why curl: VSCO is behind Cloudflare, which blocks Node's built-in fetch by TLS
- * fingerprint even from residential IPs (HTTP 403). The system curl (curl.exe on
- * Windows, curl on Ubuntu/Linux) passes. If curl is unavailable, install it or
- * set CURL_BIN.
+ * Why curl: VSCO sits behind Cloudflare, which rejects anything that doesn't look
+ * like a real browser. Node's built-in fetch fails on TLS fingerprint, and a plain
+ * curl with only a User-Agent now returns 403 — Cloudflare's WAF also wants the
+ * `sec-ch-ua*` client hints and `Sec-Fetch-*` fetch-metadata headers, so we send
+ * them. The system curl (curl.exe on Windows, curl on Ubuntu/Linux) satisfies all
+ * of this. If curl is unavailable, install it or set CURL_BIN.
  *
  * Usage:
  *   npm run sync              # fetch everything and write src/data/photos.json
@@ -23,6 +25,8 @@
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 
 const execFileAsync = promisify(execFile);
 
@@ -34,16 +38,50 @@ const CURL = process.env.CURL_BIN || (process.platform === "win32" ? "curl.exe" 
 
 const LIMIT = "14";
 const MAX_PAGES = 100;
-const PAGE_DELAY_MS = 250;
+const PAGE_DELAY_MS = 1200;
 const MAX_BUFFER = 64 * 1024 * 1024;
+const RETRIES = 4;
+const RETRY_BASE_MS = 3000;
 
-const HEADERS = {
-  "User-Agent":
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
-  "Accept-Language": "en-US,en;q=0.9",
-  "Cache-Control": "no-cache",
-  Pragma: "no-cache",
+const UA =
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " +
+  "(KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36";
+
+/**
+ * Cloudflare's WAF rejects requests that look non-browser. Any one of the
+ * `sec-ch-ua*` / `Sec-Fetch-*` headers is enough to flip a 403 into a 200, so we
+ * send the full set a real Chrome navigation would.
+ */
+const CLIENT_HINTS = {
+  "sec-ch-ua":
+    '"Chromium";v="140", "Not=A?Brand";v="24", "Google Chrome";v="140"',
+  "sec-ch-ua-mobile": "?0",
+  "sec-ch-ua-platform": '"Windows"',
+  "sec-ch-ua-platform-version": '"15.0.0"',
+  "sec-ch-ua-arch": '"x86"',
+  "sec-ch-ua-bitness": '"64"',
+  "sec-ch-ua-full-version": '"140.0.7339.80"',
+  "sec-ch-ua-model": '""',
 };
+
+/** Fetch-Metadata differs between a top-level navigation and a same-origin XHR. */
+const FETCH_METADATA = {
+  document: {
+    "Sec-Fetch-Dest": "document",
+    "Sec-Fetch-Mode": "navigate",
+    "Sec-Fetch-Site": "none",
+    "Sec-Fetch-User": "?1",
+    "Upgrade-Insecure-Requests": "1",
+  },
+  xhr: {
+    "Sec-Fetch-Dest": "empty",
+    "Sec-Fetch-Mode": "cors",
+    "Sec-Fetch-Site": "same-origin",
+  },
+};
+
+const COOKIE_JAR = join(tmpdir(), "vsco-sync-cookies.txt");
+const RETRY_STATUS = new Set([403, 429, 500, 502, 503, 504]);
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const ensureScheme = (u) => (/^https?:\/\//.test(u) ? u : `https://${u}`);
@@ -52,55 +90,85 @@ function log(...args) {
   console.log("[vsco]", ...args);
 }
 
+function cloudflareRay(body) {
+  const m = /Cloudflare Ray ID:\s*<strong[^>]*>([a-f0-9]+)/i.exec(body || "");
+  return m ? m[1] : null;
+}
+
 /**
  * HTTP GET via curl. Returns { code, body } where `code` is the HTTP status
  * and `body` is the raw response text (empty on hard failures).
+ *
+ * `kind` selects the Fetch-Metadata profile ("document" for the HTML page,
+ * "xhr" for the JSON API). 403/429/5xx are retried with exponential backoff,
+ * because Cloudflare throttles bursts rather than blocking outright.
  */
-async function curl(url, { accept, headers = {} } = {}) {
+async function curl(url, { accept, kind = "document", headers = {} } = {}) {
   const args = [
     "-sSL",
     "--compressed",
     "--max-time",
     "60",
     "-A",
-    HEADERS["User-Agent"],
+    UA,
+    "-b",
+    COOKIE_JAR,
+    "-c",
+    COOKIE_JAR,
     "-H",
     `Accept: ${accept}`,
     "-H",
-    `Accept-Language: ${HEADERS["Accept-Language"]}`,
+    "Accept-Language: en-US,en;q=0.9",
     "-H",
     "Cache-Control: no-cache",
     "-H",
     "Pragma: no-cache",
   ];
+  for (const [k, v] of Object.entries({ ...CLIENT_HINTS, ...FETCH_METADATA[kind] })) {
+    args.push("-H", `${k}: ${v}`);
+  }
   for (const [k, v] of Object.entries(headers)) {
     args.push("-H", `${k}: ${v}`);
   }
   args.push("-w", "\n%{http_code}", url);
 
-  let stdout = "";
-  try {
-    const res = await execFileAsync(CURL, args, {
-      encoding: "utf8",
-      maxBuffer: MAX_BUFFER,
-      windowsHide: true,
-    });
-    stdout = res.stdout;
-  } catch (e) {
-    if (e.code === "ENOENT") {
-      throw new Error(
-        `${CURL} not found. This script needs the system curl binary ` +
-          `(curl.exe on Windows, curl on Ubuntu/Linux). ` +
-          `If you don't have it, install curl and set CURL_BIN to its path.`,
-      );
+  let lastError = null;
+  for (let attempt = 0; attempt < RETRIES; attempt++) {
+    if (attempt > 0) {
+      const wait = RETRY_BASE_MS * 2 ** (attempt - 1);
+      log(`retry ${attempt}/${RETRIES - 1} in ${wait}ms (${url.slice(0, 60)}...)`);
+      await sleep(wait);
     }
-    throw new Error(`curl failed for ${url}: ${e.message}`);
+
+    let stdout = "";
+    try {
+      const res = await execFileAsync(CURL, args, {
+        encoding: "utf8",
+        maxBuffer: MAX_BUFFER,
+        windowsHide: true,
+      });
+      stdout = res.stdout;
+    } catch (e) {
+      if (e.code === "ENOENT") {
+        throw new Error(
+          `${CURL} not found. This script needs the system curl binary ` +
+            `(curl.exe on Windows, curl on Ubuntu/Linux). ` +
+            `If you don't have it, install curl and set CURL_BIN to its path.`,
+        );
+      }
+      lastError = new Error(`curl failed for ${url}: ${e.message}`);
+      continue;
+    }
+
+    const nl = stdout.lastIndexOf("\n");
+    const body = nl === -1 ? "" : stdout.slice(0, nl);
+    const code = Number((nl === -1 ? stdout : stdout.slice(nl + 1)).trim());
+
+    if (!RETRY_STATUS.has(code)) return { code, body };
+    lastError = new Error(`HTTP ${code} for ${url}${cloudflareRay(body) ? ` (Ray ${cloudflareRay(body)})` : ""}`);
   }
 
-  const nl = stdout.lastIndexOf("\n");
-  const body = nl === -1 ? "" : stdout.slice(0, nl);
-  const code = Number((nl === -1 ? stdout : stdout.slice(nl + 1)).trim());
-  return { code, body };
+  throw lastError ?? new Error(`HTTP request failed for ${url}`);
 }
 
 const htmlAccept = "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8";
@@ -112,13 +180,14 @@ const jsonAccept = "application/json, text/plain, */*";
 async function getPreloadState() {
   const url = `${ROOT}/${USER}/gallery`;
   log(`GET ${url}`);
-  const { code, body } = await curl(url, { accept: htmlAccept });
+  const { code, body } = await curl(url, { accept: htmlAccept, kind: "document" });
   if (code !== 200) {
     if (code === 403) {
       throw new Error(
-        `GET ${url} -> HTTP 403. Cloudflare blocked this request. ` +
-          `Try again (VSCO may be throttling), or check that curl isn't being ` +
-          `intercepted by a proxy/VPN.`,
+        `GET ${url} -> HTTP 403. Cloudflare blocked this request` +
+          `${cloudflareRay(body) ? ` (Ray ${cloudflareRay(body)})` : ""}. ` +
+          `Wait a few minutes before retrying and avoid rapid syncs — ` +
+          `Cloudflare throttles bursts.`,
       );
     }
     throw new Error(`GET ${url} -> HTTP ${code}`);
@@ -180,6 +249,7 @@ async function* fetchMedia(siteId, tkn) {
 
     const { code, body } = await curl(`${base}?${params}`, {
       accept: jsonAccept,
+      kind: "xhr",
       headers,
     });
     if (code !== 200) {
