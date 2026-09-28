@@ -1,0 +1,27 @@
+[Unit]
+Description=Sync photos from the VSCO profile
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=sockyeh
+Group=sockyeh
+WorkingDirectory=/home/sockyeh/photo-portfolio
+
+# Run via bash so the script does not need its executable bit set in git.
+ExecStart=/bin/bash /home/sockyeh/photo-portfolio/scripts/sync-and-publish.sh
+
+Environment=VSCO_USER=sockyeh
+# systemd has a minimal PATH; nvm's node is added by the wrapper script instead.
+Environment=PATH=/usr/local/bin:/usr/bin:/bin
+# Set to 1 to also git-commit and push photos.json after a successful sync.
+Environment=PUBLISH=0
+
+# Keep VSCO happy: low priority so a 100-page crawl never competes with real work.
+Nice=10
+IOSchedulingClass=idle
+TimeoutStartSec=30min
+
+[Install]
+WantedBy=multi-user.target

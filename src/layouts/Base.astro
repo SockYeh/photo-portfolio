@@ -18,6 +18,7 @@ const { title = "SockYeh's Gallery", description = "Photography by SockYeh" } = 
     <meta name="description" content={description} />
     <title>{title}</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="alternate" type="application/rss+xml" title={`${title} — RSS`} href="/rss.xml" />
   </head>
   <body>
     <slot />

@@ -1,5 +1,6 @@
 ---
 import Base from "../layouts/Base.astro";
+import Subscribe from "../components/Subscribe.astro";
 import rawData from "../data/photos.json";
 import type { Photo, PhotosData } from "../lib/types";
 
@@ -75,9 +76,12 @@ const displayName = (profile?.name || user || "SockYeh").toUpperCase();
       }
     </main>
 
+    <Subscribe />
+
     <footer class="site-footer">
       <span>SockYeh</span>
       <a href="https://sockyeh.dev" rel="me">sockyeh.dev</a>
+      <a href="/rss.xml">rss</a>
     </footer>
   </div>
 
@@ -287,7 +291,7 @@ const displayName = (profile?.name || user || "SockYeh").toUpperCase();
     const LINES: BootLine[] = [
       { prefix: "[    0.000000] ", text: "Linux version 6.9.3-arch1-1-sockyeh (gcc 14.1.1)", cls: "kern" },
       { prefix: "[    0.012345] ", text: "Memory: 16384M available", cls: "kern" },
-      { prefix: "[  OK  ] ", text: "Started SockYeh Gallery Daemon.", cls: "ok" },
+      { prefix: "[  OK  ] ", text: "Started SockYeh's Gallery Daemon.", cls: "ok" },
       { prefix: "[  OK  ] ", text: "Reached target Camera Stack.", cls: "ok" },
       { prefix: "[  OK  ] ", text: "Mounting /mnt/portfolio...", cls: "ok" },
       { prefix: "[  OK  ] ", text: "Mounted /mnt/portfolio.", cls: "ok" },

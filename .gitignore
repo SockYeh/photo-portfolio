@@ -4,5 +4,7 @@ dist/
 .env
 .env.*
 *.local
+# .env.example holds placeholders only and must be committed.
+!.env.example
 .DS_Store
 Thumbs.db

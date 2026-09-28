@@ -1,0 +1,14 @@
+[Unit]
+Description=Daily VSCO photo sync
+
+[Timer]
+# 04:23 local time. Off-the-hour so this does not pile onto every other timer
+# in the world firing at midnight.
+OnCalendar=*-*-* 04:23:00
+RandomizedDelaySec=10m
+# If the machine was off/asleep at 04:23, run as soon as it boots again.
+Persistent=true
+Unit=vsco-sync.service
+
+[Install]
+WantedBy=timers.target

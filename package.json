@@ -9,9 +9,11 @@
     "preview": "astro preview",
     "check": "astro check",
     "sync": "node scripts/sync.mjs",
-    "probe": "node scripts/sync.mjs --probe"
+    "probe": "node scripts/sync.mjs --probe",
+    "notify": "node scripts/notify.mjs"
   },
   "dependencies": {
+    "@astrojs/rss": "^4.0.19",
     "astro": "^7.1.6"
   },
   "devDependencies": {
